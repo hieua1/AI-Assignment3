@@ -163,7 +163,39 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
       Your minimax agent with alpha-beta pruning (question 3)
     """
     def alpha_beta_pruning(self, curGameState, remainDepth, numAgents, alpha, beta):
-      util.raiseNotDefined()
+      agentId = remainDepth%numAgents
+      if agentId!=0:
+        agentId = numAgents - agentId
+      legalMoves = curGameState.getLegalActions(agentId)
+      if remainDepth==0 or len(legalMoves)==0:
+        return (self.evaluationFunction(curGameState),'')
+      "random.choice([Directions.NORTH,Directions.SOUTH,Directions.WEST,Directions.EAST,Directions.STOP]"
+      scoredArr = []
+      if agentId==0:
+        lowerBound = -ooNum
+        for action in legalMoves:
+          successorGameState = curGameState.generateSuccessor(agentId, action)
+          v = self.alpha_beta_pruning(successorGameState, remainDepth-1, numAgents,alpha, beta)[0]
+          scoredArr.append(v)
+          lowerBound = max(lowerBound, v)
+          if lowerBound>beta:
+            return (lowerBound,'')
+          alpha = max(alpha, v)
+        bestScore = lowerBound
+      else:
+        upperBound = ooNum
+        for action in legalMoves:
+          successorGameState = curGameState.generateSuccessor(agentId, action)
+          v = self.alpha_beta_pruning(successorGameState, remainDepth-1, numAgents,alpha, beta)[0]
+          scoredArr.append(v)
+          upperBound = min(upperBound, v)
+          if upperBound<alpha:
+            return (upperBound,'')
+          beta = min(beta, v)
+        bestScore = upperBound
+      bestIndices = [index for index in range(len(scoredArr)) if scoredArr[index]==bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return (bestScore, legalMoves[chosenIndex])
 
     def getAction(self, gameState):
         """
