@@ -18,6 +18,8 @@ import random, util
 
 from game import Agent
 
+ooNum = 1000000
+
 class ReflexAgent(Agent):
     """
       A reflex agent chooses an action at each choice point by examining
@@ -27,7 +29,6 @@ class ReflexAgent(Agent):
       it in any way you see fit, so long as you don't touch our method
       headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -82,7 +83,7 @@ class ReflexAgent(Agent):
         for ghostState in newGhostStates:
           x, y = ghostState.getPosition()
           if abs(x-newPos[0])+abs(y-newPos[1])<=1:
-            xxx = 1000000
+            xxx = ooNum
         return -minFoodDis-xxx
 
 def scoreEvaluationFunction(currentGameState):
@@ -119,7 +120,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
       Your minimax agent (question 2)
     """
-
+    def bounded_minimax(self, curGameState, remainDepth, numAgents):
+      agentId = remainDepth%numAgents
+      if agentId!=0:
+        agentId = numAgents - agentId
+      legalMoves = curGameState.getLegalActions(agentId)
+      if remainDepth==0 or len(legalMoves)==0:
+        return (self.evaluationFunction(curGameState),'')
+      "random.choice([Directions.NORTH,Directions.SOUTH,Directions.WEST,Directions.EAST,Directions.STOP]"
+      legalSuccessor = [curGameState.generateSuccessor(agentId, action) for action in legalMoves]
+      scoredArr = [self.bounded_minimax(successorGameState, remainDepth-1, numAgents)[0] for successorGameState in legalSuccessor]
+      if agentId==0:
+        bestScore=max(scoredArr)
+      else:
+        bestScore=min(scoredArr)
+      bestIndices = [index for index in range(len(scoredArr)) if scoredArr[index]==bestScore]
+      chosenIndex = random.choice(bestIndices)
+      return (bestScore, legalMoves[chosenIndex])
     def getAction(self, gameState):
         """
           Returns the minimax action from the current gameState using self.depth
@@ -138,19 +155,23 @@ class MinimaxAgent(MultiAgentSearchAgent):
             Returns the total number of agents in the game
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        numAgents = gameState.getNumAgents()
+        return self.bounded_minimax(gameState, self.depth*numAgents, numAgents)[1]
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
       Your minimax agent with alpha-beta pruning (question 3)
     """
+    def alpha_beta_pruning(self, curGameState, remainDepth, numAgents, alpha, beta):
+      util.raiseNotDefined()
 
     def getAction(self, gameState):
         """
           Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        numAgents = gameState.getNumAgents()
+        return self.alpha_beta_pruning(gameState, self.depth*numAgents, numAgents, -ooNum, ooNum)[1]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
