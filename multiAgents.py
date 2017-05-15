@@ -248,8 +248,56 @@ def betterEvaluationFunction(currentGameState):
       DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
 
+    curFood = currentGameState.getFood()
+    curPos = currentGameState.getPacmanPosition()
+    ghostStatesList = currentGameState.getGhostStates()
+    capsulesList = currentGameState.getCapsules()
+    minScaredGhostDis = ooNum
+    minActiveGhostDis = ooNum
+    minFoodDis = ooNum
+    minCapsulesDis = ooNum
+    numCapsules = len(capsulesList)
+    numFoods = len(curFood.asList())
+    if (numFoods==0):
+      minFoodDis = 0
+    if numCapsules==0:
+      minCapsulesDis = 0
+
+    xxx = 0
+    for x, y in curFood.asList():
+      if abs(x-curPos[0])+abs(y-curPos[1])<minFoodDis:
+        minFoodDis = abs(x-curPos[0])+abs(y-curPos[1])
+
+    scaredGhosts, activeGhosts = [], []
+    for ghost in currentGameState.getGhostStates():
+      if not ghost.scaredTimer:
+        activeGhosts.append(ghost)
+      else: 
+        scaredGhosts.append(ghost)
+    if len(activeGhosts)==0:
+      minActiveGhostDis = 0
+    for ghostState in activeGhosts:
+      x, y = ghostState.getPosition()
+      if abs(x-curPos[0])+abs(y-curPos[1])<minActiveGhostDis:
+        minActiveGhostDis = abs(x-curPos[0])+abs(y-curPos[1])
+      if abs(x-curPos[0])+abs(y-curPos[1])<=1:
+        xxx = ooNum
+    if len(scaredGhosts)==0:
+      minScaredGhostDis = 0
+    for ghostState in scaredGhosts:
+      x, y = ghostState.getPosition()
+      if abs(x-curPos[0])+abs(y-curPos[1])<minScaredGhostDis and abs(x-curPos[0])+abs(y-curPos[1])<ghostState.scaredTimer:
+        minScaredGhostDis = abs(x-curPos[0])+abs(y-curPos[1])
+
+    for x, y in capsulesList:
+      if abs(x-curPos[0])+abs(y-curPos[1])<minCapsulesDis:
+        minCapsulesDis = abs(x-curPos[0])+abs(y-curPos[1])
+    
+    if minActiveGhostDis>3:
+      minActiveGhostDis = 0
+    return currentGameState.getScore()/3 - numCapsules*70 - minScaredGhostDis*10 - numFoods*7 - minFoodDis - minCapsulesDis*5 - xxx
+  
 # Abbreviation
 better = betterEvaluationFunction
 
